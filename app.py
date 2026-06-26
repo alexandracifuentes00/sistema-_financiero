@@ -171,6 +171,7 @@ def becas():
                 return render_template("becas.html", catalogo=catalogo_data, becas=becas_asignadas)
     except Exception as e:
         return f"Error en el módulo de becas: {e}"
+    
 @app.route("/guardar_beca", methods=["POST"])
 def guardar_beca():
     rut = request.form["rut"].strip()
@@ -300,16 +301,17 @@ def totem_consulta():
 
 @app.before_request
 def verificar_sesion():
-    if request.endpoint is None:
-        return
-
-    print(f"-> Validando ruta: {request.endpoint} | Usuario en sesión: {session.get('usuario')}")
-
-    rutas_libres = ['login', 'login_post', 'static', 'totem', 'totem_consulta', 'guardar_estudiante'] 
+    # 1. Definimos explícitamente los endpoints que NO necesitan login
+    # 'totem' es la pantalla de ingreso, 'totem_consulta' es la que procesa el formulario
+    rutas_libres = ['login', 'login_post', 'static', 'totem', 'totem_consulta']
     
-    if request.endpoint not in rutas_libres and 'usuario' not in session:
-        print(f"¡BLOQUEADO! Redirigiendo al login desde: {request.endpoint}")
-        return redirect("/")
+    # request.endpoint contiene el nombre de la función que se está ejecutando
+    if request.endpoint in rutas_libres:
+        return # Si está en la lista, permitimos el acceso libre de inmediato
+        
+    # 2. Si NO es una ruta libre y el usuario no está en sesión, lo mandamos al login
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
 
 if __name__ == "__main__":
     app.run(debug=True)
