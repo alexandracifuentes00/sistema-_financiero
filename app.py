@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 from conexion import conectar
 
 app = Flask(__name__)
@@ -204,8 +204,6 @@ def reportes():
     return render_template("reportes.html")
 
 # 📊 MODIFICADO: Módulo de Morosos Inteligente con Gratuidad Dinámica
-# 📊 MODIFICADO: Módulo de Morosos Inteligente con Gratuidad Dinámica Corregido
-# 📊 MODIFICADO: Módulo de Morosos Inteligente que detecta Gratuidad al 100%
 @app.route("/morosos")
 def morosos():
     try:
@@ -301,16 +299,16 @@ def totem_consulta():
 
 @app.before_request
 def verificar_sesion():
-    # 1. Definimos explícitamente los endpoints que NO necesitan login
-    # 'totem' es la pantalla de ingreso, 'totem_consulta' es la que procesa el formulario
-    rutas_libres = ['login', 'login_post', 'static', 'totem', 'totem_consulta']
-    
-    # request.endpoint contiene el nombre de la función que se está ejecutando
-    if request.endpoint in rutas_libres:
-        return # Si está en la lista, permitimos el acceso libre de inmediato
-        
-    # 2. Si NO es una ruta libre y el usuario no está en sesión, lo mandamos al login
-    if 'usuario' not in session:
+    # 1. Forzar una lectura limpia de la ruta del navegador
+    ruta_actual = str(request.path).lower()
+
+    # 2. Si la URL contiene cualquiera de estas palabras, se ignora la seguridad de inmediato
+    if "totem" in ruta_actual or "login" in ruta_actual or ruta_actual.startswith("/static"):
+        return  # Acceso libre garantizado para el tótem y el login
+
+    # 3. Para cualquier otra pantalla (administración, alumnos, carreras, becas, etc.)
+    # Si la sesión no existe o está vacía, redirige de forma segura al login
+    if not session or 'usuario' not in session:
         return redirect(url_for('login'))
 
 if __name__ == "__main__":
