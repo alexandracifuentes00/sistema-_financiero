@@ -150,29 +150,27 @@ def guardar_pago():
         return f"ERROR AL GUARDAR PAGO: {e}"
 
 # ================= MÓDULO BECAS =================
-
 @app.route("/becas")
 def becas():
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # 1. Traer las becas asignadas cruzando los datos para mostrar el nombre del beneficio y su monto real
-                cur.execute("""
-                    SELECT b.beca_id, a.rut, a.nombre, a.apellido, cb.nombre_beneficio, cb.monto_cobertura
-                    FROM becas b
-                    JOIN alumnos a ON b.alumno_id = a.alumno_id
-                    JOIN catalogo_becas cb ON b.id_catalogo = cb.id_catalogo
-                """)
-                data = cur.fetchall()
-
-                # 2. Traer el catálogo de becas disponibles para llenar el menú desplegable (Select)
-                cur.execute("SELECT id_catalogo, nombre_beneficio, monto_cobertura FROM catalogo_becas ORDER BY nombre_beneficio")
+                # 1. Traer el catálogo oficial para el menú desplegable
+                cur.execute("SELECT id, nombre_beca, monto FROM catalogo_becas ORDER BY id ASC")
                 catalogo_data = cur.fetchall()
 
-        return render_template("becas.html", becas=data, catalogo=catalogo_data)
-    except Exception as e:
-        return f"ERROR AL CARGAR BECAS: {e}"
+                # 2. Traer las becas ya asignadas a los alumnos
+                cur.execute("""
+                    SELECT b.beca_id, a.rut, a.nombre, a.apellido, b.nombre_beca, b.monto 
+                    FROM becas b
+                    JOIN alumnos a ON b.alumno_id = a.alumno_id
+                    ORDER BY b.beca_id DESC
+                """)
+                becas_asignadas = cur.fetchall()
 
+                return render_template("becas.html", catalogo=catalogo_data, becas=becas_asignadas)
+    except Exception as e:
+        return f"Error en el módulo de becas: {e}"
 @app.route("/guardar_beca", methods=["POST"])
 def guardar_beca():
     rut = request.form["rut"].strip()
