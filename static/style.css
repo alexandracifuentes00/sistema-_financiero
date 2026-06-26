@@ -1,0 +1,256 @@
+/* ================= CONFIGURACIÓN GENERAL ================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: #f4f6f9;
+    color: #333;
+}
+
+/* ================= ENCABEZADO (TOP BAR) ================= */
+header {
+    background: linear-gradient(135deg, #0D47A1, #1976D2);
+    color: white;
+    padding: 15px 30px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    min-height: 140px; /* Le da una buena altura a la barra para albergar el logo grande */
+}
+
+/* CONTENEDOR DEL LOGO Y TEXTO */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 20px; 
+}
+
+/* FORZADO DE LOGO GRANDE PARA LA BARRA SUPERIOR */
+.logo img {
+    width: auto;          /* Permite que el ancho sea proporcional */
+    height: 110px !important; /* Fuerza la altura a 110px de forma estricta */
+    min-width: 110px;     /* Evita que se encoja horizontalmente */
+    object-fit: contain;  /* Mantiene la calidad de la imagen */
+    display: block;
+}
+
+.logo div h2 {
+    font-size: 28px;    
+    margin: 0;
+    line-height: 1.2;
+}
+
+.logo div small {
+    font-size: 16px;    
+    opacity: 0.9;
+}
+
+/* MENÚ DE NAVEGACIÓN */
+nav {
+    display: flex;
+    gap: 10px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ================= CONTENEDOR CENTRAL ================= */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 30px auto;
+}
+
+.bienvenida {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+}
+
+.bienvenida h1 {
+    color: #0D47A1;
+    margin-bottom: 10px;
+}
+
+/* CARDS DE INICIO */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.card h2 {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+/* FORMULARIOS Y TABLAS GENERALES */
+form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+form input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+form button {
+    background: #1976D2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+form button:hover {
+    background: #0D47A1;
+}
+
+table {
+    width: 100%;
+    background: white;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background: #0D47A1;
+    color: white;
+}
+
+/* ================= VISTA DE LOGIN ================= */
+.login-body {
+    background: linear-gradient(135deg, #0D47A1, #1976D2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+/* FORZADO DE LOGO PARA LA PANTALLA DE LOGIN */
+.login-logo img {
+    width: auto;
+    height: 150px !important; /* Forzado a una escala bastante visible */
+    margin: 0 auto 20px auto;
+    display: block;
+    object-fit: contain;
+}
+
+.login-card h2 {
+    color: #0D47A1;
+    font-size: 26px;
+    margin-bottom: 5px;
+}
+
+.login-card p {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.login-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 0;
+    box-shadow: none;
+    background: transparent;
+}
+
+.login-card input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.login-card input:focus {
+    border-color: #1976D2;
+    outline: none;
+    box-shadow: 0 0 5px rgba(25, 118, 210, 0.3);
+}
+
+.login-card button {
+    width: 100%;
+    padding: 12px;
+    background: #0D47A1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+.login-card button:hover {
+    background: #1565C0;
+    transform: translateY(-2px);
+}

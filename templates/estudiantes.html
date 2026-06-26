@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Estudiantes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 15px 40px; background-color: #0066cc; color: white;">
+    
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <div class="logo">
+    <img src="{{ url_for('static', filename='logo.png') }}" style="display: block; height: auto;">
+        </div>
+        <div>
+            <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Gestión de Estudiantes</h1>
+            <h3 style="margin: 5px 0 0 0; font-size: 16px; opacity: 0.9;">CFT Tarapacá</h3>
+        </div>
+    </div>
+
+    <div>
+        <a href="/inicio" style="display: inline-block; padding: 10px 20px; background-color: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid rgba(255, 255, 255, 0.4); transition: background 0.3s;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.3)'" onmouseout="this.style.backgroundColor='rgba(255,255,255,0.2)'">
+            ← Volver al Menú Principal
+        </a>
+    </div>
+</header>
+
+<div class="pagina">
+
+    <div class="formulario">
+        <h2>Registrar Estudiante</h2>
+
+        <form action="/guardar_estudiante" method="POST">
+
+            <input type="text" name="rut" placeholder="Rut (Ej: 12345678-9)" 
+                pattern="^[0-9]{1,2}(\.?[0-9]{3}){2}-[0-9kK]{1}$" 
+                title="El RUT debe incluir guion y dígito verificador." required>
+
+            <input type="text" name="nombre" placeholder="Nombre" required>
+
+            <input type="text" name="apellido" placeholder="Apellido" required>
+
+            <select name="carrera_id" required>
+                <option value="">Seleccionar Carrera</option>
+                {% for carrera in carreras %}
+                    <option value="{{ carrera[0] }}">{{ carrera[1] }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">
+                Registrar Estudiante
+            </button>
+
+        </form>
+    </div>
+
+    <div class="tabla">
+        <h2>Listado de Estudiantes</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Rut</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Carrera</th>
+                    <th>Acciones</th> 
+                </tr>
+            </thead>
+            <tbody>
+                {% for est in estudiantes %}
+                <tr>
+                    <td>{{ est[0] }}</td>
+                    <td>{{ est[3] }}</td>
+                    <td>{{ est[1] }}</td>
+                    <td>{{ est[2] }}</td>
+                    <td>{{ est[4] }}</td>
+                    <td>
+                        <a href="/editar_estudiante/{{ est[0] }}" class="btn-editar">Editar</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" style="text-align: center;">No hay estudiantes registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>

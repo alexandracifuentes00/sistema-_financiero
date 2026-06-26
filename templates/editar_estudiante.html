@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Estudiante - CFT Tarapacá</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 5px 40px; background-color: #0066cc; color: white;">
+    
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" style="display: block; height: auto;">
+        </div>
+        <div>
+            <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Modificar Estudiante</h1>
+            <h3 style="margin: 5px 0 0 0; font-size: 16px; opacity: 0.9;">CFT Tarapacá</h3>
+        </div>
+    </div>
+
+    <div>
+        <a href="/estudiantes" style="display: inline-block; padding: 10px 20px; background-color: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid rgba(255, 255, 255, 0.4); transition: background 0.3s;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.3)'" onmouseout="this.style.backgroundColor='rgba(255,255,255,0.2)'">
+            ← Volver al Listado
+        </a>
+    </div>
+</header>
+
+<div style="display: flex; justify-content: center; align-items: center; min-height: 80vh; padding: 20px; background-color: #f4f6f9;">
+    
+    <div style="background: white; width: 100%; max-width: 500px; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        
+        <h2 style="margin-top: 0; margin-bottom: 25px; color: #333; font-size: 22px; border-bottom: 2px solid #0066cc; padding-bottom: 10px;">
+            Editar Datos de {{ alumno[1] }} {{ alumno[2] }}
+        </h2>
+
+        <form action="/actualizar_estudiante/{{ alumno[0] }}" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+            
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">RUT:</label>
+                <input type="text" name="rut" value="{{ alumno[3] }}" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;"
+                    pattern="^[0-9]{1,2}(\.?[0-9]{3}){2}-[0-9kK]{1}$" 
+                    title="Por favor, ingrese el RUT con guion (Ej: 12345678-9)" required>
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Nombre:</label>
+                <input type="text" name="nombre" value="{{ alumno[1] }}" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required>
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Apellido:</label>
+                <input type="text" name="apellido" value="{{ alumno[2] }}" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required>
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Carrera:</label>
+                <select name="carrera_id" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; background-color: white;" required>
+                    <option value="">Seleccionar Carrera</option>
+                    {% for carrera in carreras %}
+                        <option value="{{ carrera[0] }}" {% if carrera[0] == alumno[4] %}selected{% endif %}>
+                            {{ carrera[1] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 15px;">
+                
+                <button type="submit" style="flex: 2; padding: 12px 20px; background-color: #0066cc; color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#0052a3'" onmouseout="this.style.backgroundColor='#0066cc'">
+                    Guardar Cambios
+                </button>
+                
+                <a href="/estudiantes" style="flex: 1; padding: 12px 20px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; text-align: center; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#bd2130'" onmouseout="this.style.backgroundColor='#dc3545'">
+                    Cancelar
+                </a>
+                
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

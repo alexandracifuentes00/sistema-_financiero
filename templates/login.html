@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-body">
+
+<div class="login-container">
+
+    <div class="login-card">
+
+        <div class="login-logo">
+            <img src="{{ url_for('static', filename='logo.png') }}">
+        </div>
+
+        <h2>Sistema Financiero</h2>
+        <p>Acceso institucional</p>
+
+        <form action="/login" method="POST">
+
+            <input type="text" name="usuario" placeholder="Usuario" required>
+            <input type="password" name="password" placeholder="Contraseña" required>
+
+            <button type="submit">Ingresar</button>
+
+        </form>
+
+
+    </div>
+
+</div>
+
+</body>
+</html>

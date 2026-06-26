@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Morosos - CFT Tarapacá</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 5px 40px; background-color: #0066cc; color: white;">
+    
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" style="display: block; height: auto;">
+        </div>
+        <div>
+            <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Estudiantes Morosos</h1>
+            <h3 style="margin: 5px 0 0 0; font-size: 16px; opacity: 0.9;">CFT Tarapacá</h3>
+        </div>
+    </div>
+
+    <div>
+        <a href="/inicio" style="display: inline-block; padding: 10px 20px; background-color: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid rgba(255, 255, 255, 0.4); transition: background 0.3s;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.3)'" onmouseout="this.style.backgroundColor='rgba(255,255,255,0.2)'">
+            ← Volver al Menú Principal
+        </a>
+    </div>
+</header>
+
+<div class="container" style="max-width: 1200px; margin: 20px auto; padding: 0 20px;">
+
+    <h2>Listado de Saldos Pendientes</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Estudiante</th>
+                <th>Deuda Pendiente</th>
+                <th>Cuotas Pendientes</th> 
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in morosos %}
+            <tr>
+                <td>{{ m[0] }}</td> 
+                <td>${{ "{:,.0f}".format(m[1]).replace(',', '.') }}.-</td> 
+                
+                <td style="font-weight: bold; color: #555;">{{ m[3] }} cuota(s)</td>
+                
+                <td>
+                    <span style="background-color: #f8d7da; color: #721c24; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold;">
+                        {{ m[2] }}
+                    </span>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" style="text-align: center;">¡Excelente! No hay estudiantes morosos registrados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

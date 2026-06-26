@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estado de Cuenta - CFT Tarapacá</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .totem-layout { padding: 40px; max-width: 900px; margin: 0 auto; }
+        .totem-header-box {
+            background: #0D47A1; color: white; padding: 25px; border-radius: 16px; margin-bottom: 30px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .seccion-totem { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .seccion-totem h3 { color: #0D47A1; margin-bottom: 15px; border-bottom: 2px solid #f4f6f9; padding-bottom: 8px; }
+        .btn-volver {
+            display: block; width: 100%; text-align: center; background: #0D47A1; color: white;
+            padding: 18px; border-radius: 12px; font-size: 20px; font-weight: bold; text-decoration: none; margin-top: 30px;
+        }
+    </style>
+</head>
+<body style="background: #f4f6f9;">
+
+<div class="totem-layout">
+
+    <div class="totem-header-box">
+        <div>
+            <h1 style="margin: 0; font-size: 28px;">{{ alumno[1] }} {{ alumno[2] }}</h1>
+            <p style="margin: 5px 0 0 0; opacity: 0.9;">RUT: {{ rut }} | Carrera: {{ alumno[3] }}</p>
+        </div>
+        <img src="{{ url_for('static', filename='logo.png') }}" style="height: 80px; object-fit: contain;">
+    </div>
+
+    <div class="seccion-totem">
+        <h3>📚 Tus Beneficios / Becas</h3>
+        {% if becas %}
+            <ul>
+                {% for b in becas %}
+                    <li style="font-size: 18px; margin-bottom: 10px;">
+                        <strong>{{ b[0] }}:</strong> 
+                        {% if 'Gratuidad' in b[0] %}
+                            Cubre 100% asignados.
+                        {% else %}
+                            ${{ "{:,.0f}".format(b[1]).replace(',', '.') }}.- asignados.
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: #777;">No registras becas vigentes en este período.</p>
+        {% endif %}
+    </div>
+
+    <div class="seccion-totem">
+        <h3>💰 Últimos Pagos Registrados</h3>
+        {% if pagos %}
+            <table style="box-shadow: none;">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Monto Cancelado</th>
+                        <th>Método de Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pagos %}
+                    <tr>
+                        <td>{{ p[0] }}</td>
+                        <td>${{ "{:,.0f}".format(p[1]).replace(',', '.') }}.-</td>
+                        <td>{{ p[2] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: #777;">No se registran pagos realizados todavía en el sistema.</p>
+        {% endif %}
+    </div>
+
+    <a href="/totem" class="btn-volver">❌ Terminar Consulta</a>
+
+</div>
+
+</body>
+</html>
