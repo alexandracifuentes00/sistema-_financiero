@@ -299,19 +299,20 @@ def totem_consulta():
 
 @app.before_request
 def verificar_sesion():
-    # Si no hay un endpoint válido (por ejemplo, archivos estáticos internos de Flask), dejamos pasar
-    if not request.endpoint:
+    # 1. Si es un archivo estático (CSS, imágenes, JS), se permite el acceso de inmediato
+    if request.path.startswith('/static'):
         return
 
-    # Definimos las funciones exactas que son públicas
-    # Asegúrate de que tus funciones en app.py se llamen exactamente así en el 'def'
-    rutas_publicas = ['login', 'totem', 'totem_consulta', 'static']
-    
-    # Si la función actual está en la lista de públicas, se ingresa sin restricciones
-    if request.endpoint in rutas_publicas:
-        return
+    # 2. Obtenemos el endpoint y la ruta en minúsculas para comparar fácilmente
+    endpoint = request.endpoint or ""
+    ruta = request.path.lower()
 
-    # Solo si intenta entrar a administración y no está logueado, se le redirige
+    # 3. Lista de funciones o palabras clave permitidas públicamente
+    # Esto cubre el login, los procesos del tótem y las vistas asociadas
+    if endpoint in ['login', 'totem', 'totem_consulta'] or 'login' in ruta or 'totem' in ruta:
+        return  # Todo liberado para el público y accesos de inicio
+
+    # 4. Si intenta entrar al panel de administración y no tiene sesión activa, redirige al login
     if 'usuario' not in session:
         return redirect(url_for('login'))
 
