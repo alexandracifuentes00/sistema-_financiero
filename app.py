@@ -190,11 +190,11 @@ def modulo_becas():
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # 1. CORREGIDO: Traemos las columnas reales de tu tabla 'catalogo_becas'
-                cur.execute("SELECT beca_id, nombre_beca, monto FROM catalogo_becas ORDER BY beca_id ASC")
+                # CORREGIDO: Cambiado 'beca_id' por 'id'
+                cur.execute("SELECT id, nombre_beca, monto FROM catalogo_becas ORDER BY id ASC")
                 becas_catalogo = cur.fetchall()
                 
-                # 2. CORREGIDO: Traemos el listado de becas asignadas emparejando con los datos del alumno
+                # 2. Traemos el listado de becas asignadas emparejando con los datos del alumno
                 cur.execute("""
                     SELECT b.id, a.rut, a.nombre, a.apellido, b.nombre_beca, b.monto 
                     FROM becas b
@@ -203,7 +203,6 @@ def modulo_becas():
                 """)
                 becas_asignadas = cur.fetchall()
 
-        # Enviamos los datos ordenados tal cual los espera tu plantilla HTML (catalogo y becas)
         return render_template("becas.html", catalogo=becas_catalogo, becas=becas_asignadas)
         
     except Exception as e:
