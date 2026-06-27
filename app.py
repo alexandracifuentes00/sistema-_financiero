@@ -243,10 +243,11 @@ def morosos():
         return render_template("morosos.html", morosos=data)
     except Exception as e:
         return f"ERROR: {e}"
+# ================= TÓTEM DE ALUMNOS =================
 
 @app.route("/totem", methods=["GET"])
 def totem_inicio():
-    # Corregido: Ahora apunta a tu archivo real totem_ingreso.html
+    # CORREGIDO: Cambiado de totem.html a totem_ingreso.html
     return render_template("totem_ingreso.html", error=None)
 
 @app.route("/totem_consulta", methods=["POST"])
@@ -259,7 +260,7 @@ def totem_consulta():
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # 1. Buscamos los datos básicos del alumno y su carrera
+                # 1. Buscamos los datos básicos del alumno y el nombre de su carrera haciendo un LEFT JOIN
                 cur.execute("""
                     SELECT a.alumno_id, a.nombre, a.apellido, COALESCE(c.nombre_carrera, 'Sin Carrera'), a.direccion
                     FROM alumnos a
@@ -269,10 +270,10 @@ def totem_consulta():
                 alumno = cur.fetchone()
                 
                 if not alumno:
-                    # En caso de no encontrarlo, volvemos a mostrar la pantalla de ingreso con el error
+                    # CORREGIDO: Redirecciona de vuelta a totem_ingreso.html mostrando el error en pantalla
                     return render_template("totem_ingreso.html", error=f"Estudiante con RUT {rut_alumno} no encontrado.")
                 
-                # 2. Buscamos sus pagos
+                # 2. Buscamos sus pagos asociados usando el alumno_id encontrado
                 cur.execute("""
                     SELECT fecha, monto, metodo_pago 
                     FROM pagos 
@@ -281,7 +282,7 @@ def totem_consulta():
                 """, (alumno[0],))
                 pagos = cur.fetchall()
                 
-                # 3. Buscamos sus becas
+                # 3. Buscamos sus becas asociadas usando el alumno_id encontrado
                 cur.execute("""
                     SELECT nombre_beca, monto 
                     FROM becas 
@@ -289,11 +290,12 @@ def totem_consulta():
                 """, (alumno[0],))
                 becas = cur.fetchall()
                 
-                # Corregido: Ahora envía los datos a tu archivo real totem_resultado.html
+                # CORREGIDO: Cambiado para que envíe los datos limpiamente a tu plantilla totem_resultado.html
                 return render_template("totem_resultado.html", alumno=alumno, pagos=pagos, becas=becas)
                 
     except Exception as e:
-        return f"<h3>Error interno en el Tótem:</h3><p>{e}</p><br><a href='/totem'>Volver</a>"
+        # CORREGIDO: Si hay un error con las tablas de la base de datos, te avisará en la plantilla de ingreso
+        return render_template("totem_ingreso.html", error=f"Error en la base de datos: {e}")
 
 @app.route("/logout")
 def logout():
