@@ -235,7 +235,7 @@ def morosos():
             with conn.cursor() as cur:
                 cur.execute("""
                     SELECT a.nombre, 
-                           (c.costo_arancel - COALESCE((SELECT SUM(monto) FROM pagos WHERE alumno_id = a.alumno_id), 0)) AS deuda
+                            (c.costo_arancel - COALESCE((SELECT SUM(monto) FROM pagos WHERE alumno_id = a.alumno_id), 0)) AS deuda
                     FROM alumnos a
                     JOIN carreras c ON a.carrera_id = c.carrera_id
                 """)
@@ -250,12 +250,17 @@ def totem_inicio():
 
 @app.route("/totem_consulta", methods=["POST"])
 def totem_consulta():
-    rut_alumno = request.form.get("rut").strip()
+    rut_alumno = request.form.get("rut", "").strip()
+    
+    if not rut_alumno:
+        return "Por favor, ingrese un RUT válido."
+        
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
+                # 1. Buscamos los datos básicos del alumno y el nombre de su carrera haciendo un LEFT JOIN
                 cur.execute("""
-                    SELECT a.alumno_id, a.nombre, a.apellido, c.nombre_carrera, c.costo_arancel, a.direccion
+                    SELECT a.alumno_id, a.nombre, a.apellido, COALESCE(c.nombre_carrera, 'Sin Carrera'), a.direccion
                     FROM alumnos a
                     LEFT JOIN carreras c ON a.carrera_id = c.carrera_id
                     WHERE a.rut = %s
@@ -263,17 +268,31 @@ def totem_consulta():
                 alumno = cur.fetchone()
                 
                 if not alumno:
-                    return "Estudiante no encontrado en el Tótem."
+                    return f"<h3>Estudiante con RUT {rut_alumno} no encontrado en el sistema.</h3><br><a href='/totem'>Volver</a>"
                 
-                cur.execute("SELECT fecha, monto, metodo_pago FROM pagos WHERE alumno_id = %s ORDER BY fecha DESC", (alumno[0],))
+                # 2. Buscamos sus pagos asociados usando el alumno_id encontrado
+                cur.execute("""
+                    SELECT fecha, monto, metodo_pago 
+                    FROM pagos 
+                    WHERE alumno_id = %s 
+                    ORDER BY fecha DESC
+                """, (alumno[0],))
                 pagos = cur.fetchall()
                 
-                cur.execute("SELECT nombre_beca, monto FROM becas WHERE alumno_id = %s", (alumno[0],))
+                # 3. Buscamos sus becas asociadas usando el alumno_id encontrado
+                cur.execute("""
+                    SELECT nombre_beca, monto 
+                    FROM becas 
+                    WHERE alumno_id = %s
+                """, (alumno[0],))
                 becas = cur.fetchall()
                 
+                # Pasamos los datos limpiamente a la plantilla del tótem
                 return render_template("totem_consulta.html", alumno=alumno, pagos=pagos, becas=becas)
+                
     except Exception as e:
-        return f"Error Tótem: {e}"
+        # Si algo falla internamente, esto nos mostrará el mensaje exacto en lugar del "Internal Server Error"
+        return f"<h3>Error interno en el Tótem:</h3><p>{e}</p><br><a href='/totem'>Volver</a>"
 
 @app.route("/logout")
 def logout():
