@@ -256,21 +256,25 @@ def totem_consulta():
     
     if not rut_alumno:
         return "Por favor, ingrese un RUT válido."
+    
+    # 🔥 LA SOLUCIÓN: Quitamos los puntos del RUT antes de ir a Neon
+    # Así, si el usuario envía "18.453.221-K", Python buscará "18453221-K"
+    rut_busqueda = rut_alumno.replace(".", "")
         
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # 1. Buscamos los datos básicos del alumno y el nombre de su carrera haciendo un LEFT JOIN
+                # 1. Buscamos los datos utilizando el RUT sin puntos (rut_busqueda)
                 cur.execute("""
                     SELECT a.alumno_id, a.nombre, a.apellido, COALESCE(c.nombre_carrera, 'Sin Carrera'), a.direccion
                     FROM alumnos a
                     LEFT JOIN carreras c ON a.carrera_id = c.carrera_id
                     WHERE a.rut = %s
-                """, (rut_alumno,))
+                """, (rut_busqueda,))
                 alumno = cur.fetchone()
                 
                 if not alumno:
-                    # CORREGIDO: Redirecciona de vuelta a totem_ingreso.html mostrando el error en pantalla
+                    # Si no existe, devolvemos el error mostrando el RUT original con puntos para que el usuario vea qué escribió
                     return render_template("totem_ingreso.html", error=f"Estudiante con RUT {rut_alumno} no encontrado.")
                 
                 # 2. Buscamos sus pagos asociados usando el alumno_id encontrado
@@ -290,11 +294,9 @@ def totem_consulta():
                 """, (alumno[0],))
                 becas = cur.fetchall()
                 
-                # CORREGIDO: Cambiado para que envíe los datos limpiamente a tu plantilla totem_resultado.html
                 return render_template("totem_resultado.html", alumno=alumno, pagos=pagos, becas=becas)
                 
     except Exception as e:
-        # CORREGIDO: Si hay un error con las tablas de la base de datos, te avisará en la plantilla de ingreso
         return render_template("totem_ingreso.html", error=f"Error en la base de datos: {e}")
 
 @app.route("/logout")
