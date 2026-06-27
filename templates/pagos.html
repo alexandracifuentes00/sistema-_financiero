@@ -25,51 +25,82 @@
     </div>
 </header>
 
-<div class="container" style="max-width: 1200px; margin: 20px auto; padding: 0 20px;">
+<div class="container" style="max-width: 1300px; margin: 20px auto; padding: 0 20px;">
 
-    <h2>Ingresar Nuevo Pago</h2>
+    <h2 style="margin-bottom: 15px;">Ingresar Nuevo Pago</h2>
 
-    <form action="/guardar_pago" method="POST" style="margin-bottom: 30px; display: flex; flex-direction: column; gap: 10px; max-width: 500px;">
-        <input type="text" name="rut" placeholder="Rut (Ej: 12345678-9)" 
-                pattern="^[0-9]{1,2}(\.?[0-9]{3}){2}-[0-9kK]{1}$" 
-                title="El RUT debe incluir guion y dígito verificador." required>
-        
-        <input name="monto" placeholder="Monto" required>
-        
-        <input type="date" name="fecha" required>
-        
-        <label for="metodo_pago" style="font-weight: bold; margin-top: 5px;">Método de Pago:</label>
-        <select id="metodo_pago" name="metodo_pago" class="form-control" required style="width: 100%; padding: 10px; border-radius: 8px;">
-            <option value="" disabled selected>Seleccione un método...</option>
-            <option value="Redcompra">💳 Redcompra (Débito/Crédito)</option>
-            <option value="Transferencia">🏦 Transferencia Bancaria</option>
-            <option value="Efectivo">💵 Efectivo</option>
-            <option value="Pago RUT">🧡 CuentaRUT / BancoEstado</option>
-            <option value="Webpay">🌐 Webpay / Pago en Línea</option>
-        </select>
+    <div style="background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 40px;">
+        <form action="/guardar_pago" method="POST" style="display: flex; flex-direction: row; align-items: flex-end; gap: 15px; wrap: wrap;">
+            
+            <div style="flex: 1; min-width: 180px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">RUT:</label>
+                <input type="text" name="rut" placeholder="Rut (Ej: 12345678-9)" 
+                        pattern="^[0-9]{1,2}(\.?[0-9]{3}){2}-[0-9kK]{1}$" 
+                        title="El RUT debe incluir guion y dígito verificador." required 
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            
+            <div style="flex: 1; min-width: 140px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Monto:</label>
+                <input type="number" name="monto" placeholder="Monto" required 
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            
+            <div style="flex: 1; min-width: 150px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Fecha:</label>
+                <input type="date" name="fecha" required 
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            
+            <div style="flex: 1.2; min-width: 200px;">
+                <label for="metodo_pago" style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Método de Pago:</label>
+                <select id="metodo_pago" name="metodo_pago" required 
+                        style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background-color: white; box-sizing: border-box; height: 38px;">
+                    <option value="" disabled selected>Seleccione un método...</option>
+                    <option value="Redcompra">💳 Redcompra (Débito/Crédito)</option>
+                    <option value="Transferencia">🏦 Transferencia Bancaria</option>
+                    <option value="Efectivo">💵 Efectivo</option>
+                    <option value="Pago RUT">🧡 CuentaRUT / BancoEstado</option>
+                    <option value="Webpay">🌐 Webpay / Pago en Línea</option>
+                </select>
+            </div>
 
-        <button class="btn" type="submit" style="margin-top: 10px;">Guardar Pago</button>
-    </form>
+            <div style="min-width: 140px;">
+                <button type="submit" style="width: 100%; padding: 10px 15px; background-color: #0066cc; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; height: 38px; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#0052a3'" onmouseout="this.style.backgroundColor='#0066cc'">
+                    Guardar Pago
+                </button>
+            </div>
+        </form>
+    </div>
+
     <h2>Historial de Pagos</h2>
     
-    <table>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
         <thead>
-            <tr>
-                <th>ID</th>
-                <th>RUT</th>
-                <th>Nombre Alumno</th> 
-                <th>Monto</th>
-                <th>Fecha</th>
-                <th>Método de Pago</th> </tr>
+            <tr style="background-color: #0066cc; color: white; text-align: left;">
+                <th style="padding: 12px; border-bottom: 2px solid #ddd;">ID</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd;">RUT</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd;">Nombre Alumno</th> 
+                <th style="padding: 12px; border-bottom: 2px solid #ddd;">Monto</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd;">Fecha</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd;">Método de Pago</th>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd; text-align: center;">Acciones</th> </tr>
         </thead>
         <tbody>
             {% for p in pagos %}
-            <tr>
-                <td>{{ loop.index }}</td> 
-                <td>{{ p[1] }}</td>       
-                <td>{{ p[2] }} {{ p[3] }}</td> <td>${{ "{:,.0f}".format(p[5]).replace(',', '.') }}</td> 
-                <td>{{ p[4] }}</td>       
-                <td>{{ p[6] }}</td> </tr>
+            <tr style="border-bottom: 1px solid #ddd;">
+                <td style="padding: 12px;">{{ loop.index }}</td> 
+                <td style="padding: 12px;">{{ p[1] }}</td>       
+                <td style="padding: 12px;">{{ p[2] }} {{ p[3] }}</td>      
+                <td style="padding: 12px; font-weight: bold; color: #2e7d32;">${{ "{:,.0f}".format(p[5]).replace(',', '.') }}</td> 
+                <td style="padding: 12px;">{{ p[4] }}</td>       
+                <td style="padding: 12px;">{{ p[6] }}</td>
+                <td style="padding: 12px; text-align: center;">
+                    <a href="/editar_pago/{{ p[0] }}" style="display: inline-block; padding: 6px 12px; background-color: #e3f2fd; color: #0066cc; border: 1px solid #0066cc; border-radius: 4px; text-decoration: none; font-size: 13px; font-weight: bold; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#0066cc'; this.style.color='white';" onmouseout="this.style.backgroundColor='#e3f2fd'; this.style.color='#0066cc';">
+                        ✏️ Editar Pago
+                    </a>
+                </td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
