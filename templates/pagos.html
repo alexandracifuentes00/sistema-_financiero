@@ -8,7 +8,6 @@
 <body>
 
 <header style="display: flex; align-items: center; justify-content: space-between; padding: 5px 40px; background-color: #0066cc; color: white;">
-    
     <div style="display: flex; align-items: center; gap: 20px;">
         <div class="logo">
             <img src="{{ url_for('static', filename='logo.png') }}" style="display: block; height: auto;">
@@ -30,33 +29,50 @@
 
     <h2>Ingresar Nuevo Pago</h2>
 
-    <form action="/guardar_pago" method="POST" style="margin-bottom: 30px;">
+    <form action="/guardar_pago" method="POST" style="margin-bottom: 30px; display: flex; flex-direction: column; gap: 10px; max-width: 500px;">
         <input type="text" name="rut" placeholder="Rut (Ej: 12345678-9)" 
                 pattern="^[0-9]{1,2}(\.?[0-9]{3}){2}-[0-9kK]{1}$" 
                 title="El RUT debe incluir guion y dígito verificador." required>
+        
         <input name="monto" placeholder="Monto" required>
+        
         <input type="date" name="fecha" required>
-        <button class="btn" type="submit">Guardar Pago</button>
-    </form>
+        
+        <label for="metodo_pago" style="font-weight: bold; margin-top: 5px;">Método de Pago:</label>
+        <select id="metodo_pago" name="metodo_pago" class="form-control" required style="width: 100%; padding: 10px; border-radius: 8px;">
+            <option value="" disabled selected>Seleccione un método...</option>
+            <option value="Redcompra">💳 Redcompra (Débito/Crédito)</option>
+            <option value="Transferencia">🏦 Transferencia Bancaria</option>
+            <option value="Efectivo">💵 Efectivo</option>
+            <option value="Pago RUT">🧡 CuentaRUT / BancoEstado</option>
+            <option value="Webpay">🌐 Webpay / Pago en Línea</option>
+        </select>
 
+        <button class="btn" type="submit" style="margin-top: 10px;">Guardar Pago</button>
+    </form>
     <h2>Historial de Pagos</h2>
     
     <table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>RUT</th>
-            <th>Nombre Alumno</th> <th>Monto</th>
-            <th>Fecha</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for p in pagos %}
-        <tr>
-            <td>{{ loop.index }}</td> <td>{{ p[1] }}</td>       <td>{{ p[2] }}</td>       <td>${{ "{:,.0f}".format(p[3]).replace(',', '.') }}</td> <td>{{ p[4] }}</td>       </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>RUT</th>
+                <th>Nombre Alumno</th> 
+                <th>Monto</th>
+                <th>Fecha</th>
+                <th>Método de Pago</th> </tr>
+        </thead>
+        <tbody>
+            {% for p in pagos %}
+            <tr>
+                <td>{{ loop.index }}</td> 
+                <td>{{ p[1] }}</td>       
+                <td>{{ p[2] }} {{ p[3] }}</td> <td>${{ "{:,.0f}".format(p[5]).replace(',', '.') }}</td> 
+                <td>{{ p[4] }}</td>       
+                <td>{{ p[6] }}</td> </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 </div>
 
