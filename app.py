@@ -190,16 +190,16 @@ def modulo_becas():
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # CORREGIDO: Cambiado 'beca_id' por 'id'
+                # 1. Catálogo oficial de becas (usa la columna id)
                 cur.execute("SELECT id, nombre_beca, monto FROM catalogo_becas ORDER BY id ASC")
                 becas_catalogo = cur.fetchall()
                 
-                # 2. Traemos el listado de becas asignadas emparejando con los datos del alumno
+                # 2. Listado de becas asignadas (Corregido: quitamos b.id ya que usas loop.index en el HTML)
                 cur.execute("""
-                    SELECT b.id, a.rut, a.nombre, a.apellido, b.nombre_beca, b.monto 
+                    SELECT 1, a.rut, a.nombre, a.apellido, b.nombre_beca, b.monto 
                     FROM becas b
                     JOIN alumnos a ON b.alumno_id = a.alumno_id
-                    ORDER BY b.id DESC
+                    ORDER BY a.apellido ASC
                 """)
                 becas_asignadas = cur.fetchall()
 
