@@ -25,14 +25,12 @@ def inicio():
 
 # ================= MÓDULO ESTUDIANTES =================
 
-# ================= MÓDULO ESTUDIANTES =================
-
 @app.route("/estudiantes")
 def estudiantes():
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # 1. Traer estudiantes (Agregada la columna a.direccion en la posición p[5])
+                # 1. Traer estudiantes incluyendo la nueva columna direccion (posición [5])
                 cur.execute("""
                     SELECT a.alumno_id, a.nombre, a.apellido, a.rut, COALESCE(c.nombre_carrera, 'Sin Carrera'), a.direccion 
                     FROM alumnos a
@@ -55,7 +53,7 @@ def guardar_estudiante():
     nombre = request.form["nombre"]
     apellido = request.form["apellido"]
     carrera_id = request.form["carrera_id"]
-    direccion = request.form["direccion"] # Captura la dirección del formulario
+    direccion = request.form["direccion"].strip()
 
     try:
         with conectar() as conn:
@@ -76,7 +74,7 @@ def editar_estudiante(id):
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # 1. Buscar al alumno incluyendo dirección
+                # 1. Buscar al alumno incluyendo la direccion
                 cur.execute("SELECT alumno_id, nombre, apellido, rut, carrera_id, direccion FROM alumnos WHERE alumno_id = %s", (id,))
                 alumno = cur.fetchone()
                 
@@ -96,7 +94,7 @@ def actualizar_estudiante(id):
     apellido = request.form["apellido"]
     rut = request.form["rut"].strip()
     carrera_id = request.form.get("carrera_id", 1)
-    direccion = request.form["direccion"] # Captura la dirección modificada
+    direccion = request.form["direccion"].strip()
 
     try:
         with conectar() as conn:
@@ -117,7 +115,6 @@ def pagos():
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # Esta consulta amarra el pago con el alumno para mostrar los datos en tu tabla de administración
                 cur.execute("""
                     SELECT p.pago_id, a.rut, a.nombre, a.apellido, p.fecha, p.monto, p.metodo_pago
                     FROM pagos p
@@ -310,8 +307,8 @@ def totem_consulta():
             with conn.cursor() as cur:
                 cur.execute("""
                     SELECT a.alumno_id, a.nombre, a.apellido, 
-                            COALESCE(c.nombre_carrera, 'Carrera no asignada'), 
-                            COALESCE(c.costo_arancel, 0)
+                           COALESCE(c.nombre_carrera, 'Carrera no asignada'), 
+                           COALESCE(c.costo_arancel, 0)
                     FROM alumnos a
                     LEFT JOIN carreras c ON a.carrera_id = c.carrera_id
                     WHERE TRIM(LOWER(a.rut)) = %s 
