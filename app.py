@@ -205,26 +205,24 @@ def becas():
     except Exception as e:
         return f"Error en becas: {e}"
     
-@app.route("/guardar_beca", methods=["POST"])
+@app.route("/guardar_beca", methods=["POST"]) # <- Revisa si tu ruta se llama así o /agregar_beca
 def guardar_beca():
-    rut = request.form["rut"].strip()
-    id_catalogo = request.form["id_catalogo"]
+    alumno_id = request.form.get("alumno_id")
+    nombre_beca = request.form.get("nombre_beca") # Nombre del input en tu HTML
+    monto = request.form.get("monto")             # Nombre del input en tu HTML
+
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT alumno_id FROM alumnos WHERE rut = %s", (rut,))
-                alumno = cur.fetchone()
-                if alumno:
-                    alumno_id = alumno[0]
-                    cur.execute("""
-                        INSERT INTO becas (alumno_id, id_catalogo, nombre_beca, monto)
-                        VALUES (%s, %s, (SELECT nombre_beneficio FROM catalogo_becas WHERE id = %s), (SELECT monto_cobertura FROM catalogo_becas WHERE id = %s))
-                    """, (alumno_id, int(id_catalogo), int(id_catalogo), int(id_catalogo)))
-                else:
-                    return f"Error: El RUT {rut} no existe."
-        return redirect("/becas")
+                # CORREGIDO: Usamos las columnas reales 'nombre_beca' y 'monto'
+                cur.execute("""
+                    INSERT INTO becas (alumno_id, nombre_beca, monto) 
+                    VALUES (%s, %s, %s)
+                """, (alumno_id, nombre_beca, monto))
+                conn.commit()
+        return redirect("/becas") # O la ruta a la que rediriges normalmente
     except Exception as e:
-        return f"ERROR: {e}"
+        return f"Error al agregar la beca: {e}"
 
 # ================= REPORTES Y TÓTEM ORIGINALES =================
 
