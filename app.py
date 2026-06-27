@@ -150,17 +150,60 @@ def guardar_pago():
     except Exception as e:
         return f"ERROR AL GUARDAR PAGO: {e}"
 
+@app.route("/editar_pago/<int:id>")
+def editar_pago(id):
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+        
+    try:
+        with conectar() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT p.pago_id, a.rut, p.monto, p.fecha, p.metodo_pago 
+                    FROM pagos p 
+                    JOIN alumnos a ON p.alumno_id = a.alumno_id 
+                    WHERE p.pago_id = %s
+                """, (id,))
+                pago = cur.fetchone()
+                
+                if pago:
+                    return render_template("editar_pago.html", pago=pago)
+                else:
+                    return "Error: Pago no encontrado."
+    except Exception as e:
+        return f"ERROR AL CARGAR EDICIÓN: {e}"
+
+@app.route("/actualizar_pago/<int:id>", methods=["POST"])
+def actualizar_pago(id):
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    monto = request.form["monto"]
+    fecha = request.form["fecha"]
+    metodo_pago = request.form["metodo_pago"]
+
+    try:
+        with conectar() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE pagos 
+                    SET monto = %s, fecha = %s, metodo_pago = %s 
+                    WHERE pago_id = %s
+                """, (monto, fecha, metodo_pago, id))
+        return redirect("/pagos")
+    except Exception as e:
+        return f"ERROR AL ACTUALIZAR PAGO: {e}"
+
 # ================= MÓDULO BECAS =================
+
 @app.route("/becas")
 def becas():
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # 1. Traer el catálogo oficial para el menú desplegable
                 cur.execute("SELECT id, nombre_beca, monto FROM catalogo_becas ORDER BY id ASC")
                 catalogo_data = cur.fetchall()
 
-                # 2. Traer las becas ya asignadas a los alumnos
                 cur.execute("""
                     SELECT b.beca_id, a.rut, a.nombre, a.apellido, b.nombre_beca, b.monto 
                     FROM becas b
@@ -176,18 +219,16 @@ def becas():
 @app.route("/guardar_beca", methods=["POST"])
 def guardar_beca():
     rut = request.form["rut"].strip()
-    id_catalogo = request.form["id_catalogo"] # Recibimos el ID seleccionado del menú desplegable
+    id_catalogo = request.form["id_catalogo"]
 
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # Buscar al alumno por su RUT
                 cur.execute("SELECT alumno_id FROM alumnos WHERE rut = %s", (rut,))
                 alumno = cur.fetchone()
 
                 if alumno:
                     alumno_id = alumno[0]
-                    # Insertamos la beca guardando la referencia al catálogo
                     cur.execute("""
                         INSERT INTO becas (alumno_id, id_catalogo, nombre_beca, monto)
                         VALUES (%s, %s, (SELECT nombre_beneficio FROM catalogo_becas WHERE id_catalogo = %s), (SELECT monto_cobertura FROM catalogo_becas WHERE id_catalogo = %s))
@@ -204,7 +245,6 @@ def guardar_beca():
 def reportes():
     return render_template("reportes.html")
 
-# 📊 MODIFICADO: Módulo de Morosos Inteligente con Gratuidad Dinámica
 @app.route("/morosos")
 def morosos():
     try:
@@ -213,7 +253,6 @@ def morosos():
                 cur.execute("""
                     SELECT 
                         a.nombre AS estudiante,
-                        -- 💡 LÓGICA DE DEUDA: Si tiene Gratuidad la deuda es 0, si no, se restan los pagos y el monto de la beca
                         CASE 
                             WHEN EXISTS (SELECT 1 FROM becas WHERE alumno_id = a.alumno_id AND nombre_beca LIKE '%Gratuidad%') THEN 0
                             ELSE (c.costo_arancel 
@@ -221,7 +260,6 @@ def morosos():
                                     - COALESCE((SELECT SUM(monto) FROM becas WHERE alumno_id = a.alumno_id), 0))
                         END AS deuda_pendiente,
                         'Pendiente' AS estado,
-                        -- 💡 LÓGICA DE CUOTAS: Si tiene Gratuidad es 0 cuotas, si no, se calcula según el saldo
                         CASE 
                             WHEN EXISTS (SELECT 1 FROM becas WHERE alumno_id = a.alumno_id AND nombre_beca LIKE '%Gratuidad%') THEN 0
                             ELSE CEIL((c.costo_arancel 
@@ -230,7 +268,6 @@ def morosos():
                         END AS cuotas_pendientes
                     FROM alumnos a
                     JOIN carreras c ON a.carrera_id = c.carrera_id
-                    -- Filtramos para que SOLO aparezcan los que tienen deuda real mayor a 0
                     WHERE (
                         CASE 
                             WHEN EXISTS (SELECT 1 FROM becas WHERE alumno_id = a.alumno_id AND nombre_beca LIKE '%Gratuidad%') THEN 0
@@ -259,7 +296,6 @@ def totem_inicio():
 @app.route("/totem_consulta", methods=["POST"])
 def totem_consulta():
     rut_alumno = request.form.get("rut")
-    
     if not rut_alumno:
         return render_template("totem_ingreso.html", error="Por favor, ingrese un RUT.")
         
@@ -270,14 +306,13 @@ def totem_consulta():
             with conn.cursor() as cur:
                 cur.execute("""
                     SELECT a.alumno_id, a.nombre, a.apellido, 
-                            COALESCE(c.nombre_carrera, 'Carrera no asignada'), 
-                            COALESCE(c.costo_arancel, 0)
+                           COALESCE(c.nombre_carrera, 'Carrera no asignada'), 
+                           COALESCE(c.costo_arancel, 0)
                     FROM alumnos a
                     LEFT JOIN carreras c ON a.carrera_id = c.carrera_id
                     WHERE TRIM(LOWER(a.rut)) = %s 
                         OR LOWER(REPLACE(REPLACE(REPLACE(TRIM(a.rut), '.', ''), '-', ''), ' ', '')) = %s
                 """, (rut_alumno.strip().lower(), rut_limpio))
-                
                 alumno = cur.fetchone()
 
                 if not alumno:
@@ -292,7 +327,6 @@ def totem_consulta():
                 becas = cur.fetchall()
                 
                 return render_template("totem_resultado.html", alumno=alumno, rut=rut_alumno, pagos=pagos, becas=becas)
-        
     except Exception as e:
         return f"<h3>Error en el Tótem:</h3> <p>{e}</p>"
 
@@ -300,69 +334,17 @@ def totem_consulta():
 
 @app.before_request
 def verificar_sesion():
-    # 1. Si es un archivo estático (CSS, imágenes, JS), se permite el acceso de inmediato
     if request.path.startswith('/static'):
         return
 
-    # 2. Obtenemos el endpoint y la ruta en minúsculas para comparar fácilmente
     endpoint = request.endpoint or ""
     ruta = request.path.lower()
 
-    # 3. Lista de funciones o palabras clave permitidas públicamente
-    # Esto cubre el login, los procesos del tótem y las vistas asociadas
     if endpoint in ['login', 'totem', 'totem_consulta'] or 'login' in ruta or 'totem' in ruta:
-        return  # Todo liberado para el público y accesos de inicio
+        return
 
-    # 4. Si intenta entrar al panel de administración y no tiene sesión activa, redirige al login
     if 'usuario' not in session:
         return redirect(url_for('login'))
-    
-    @app.route("/editar_pago/<int:id>")
-    def editar_pago(id):
-    # Validar sesión de administrador
-        if 'usuario' not in session:
-            return redirect(url_for('login'))
-        
-    try:
-        with conectar() as conn:
-            with conn.cursor() as cur:
-                # Buscamos el pago específico y los datos del alumno asignado
-                cur.execute("""
-                    SELECT p.pago_id, a.rut, p.monto, p.fecha, p.metodo_pago 
-                    FROM pagos p 
-                    JOIN alumnos a ON p.alumno_id = a.alumno_id 
-                    WHERE p.pago_id = %s
-                """, (id,))
-                pago = cur.fetchone()
-                
-                if pago:
-                    return render_template("editar_pago.html", pago=pago)
-                else:
-                    return "Error: Pago no encontrado."
-    except Exception as e:
-        return f"ERROR AL CARGAR EDICIÓN: {e}"
-
-@app.route("/actualizar_pago/<int:id>", methods=["POST"])
-def actualizar_pago(id):
-    if 'usuario' not in session:
-        return redirect(url_for('login'))
-
-    monto = request.form["monto"]
-    fecha = request.form["fecha"]
-    metodo_pago = request.form["metodo_pago"]
-
-    try:
-        with conectar() as conn:
-            with conn.cursor() as cur:
-                # Actualizamos los datos del pago
-                cur.execute("""
-                    UPDATE pagos 
-                    SET monto = %s, fecha = %s, metodo_pago = %s 
-                    WHERE pago_id = %s
-                """, (monto, fecha, metodo_pago, id))
-        return redirect("/pagos")
-    except Exception as e:
-        return f"ERROR AL ACTUALIZAR PAGO: {e}"
 
 if __name__ == "__main__":
     app.run(debug=True)
