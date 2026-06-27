@@ -185,25 +185,29 @@ def actualizar_pago(id):
         return f"ERROR: {e}"
 
 # ================= MÓDULO BECAS (TU LÓGICA ORIGINAL) =================
-
-@app.route("/becas")
-def becas():
+@app.route("/becas", methods=["GET"])
+def modulo_becas():
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT id, nombre_beneficio, monto_cobertura FROM catalogo_becas ORDER BY id ASC")
-                catalogo_data = cur.fetchall()
-
+                # 1. CORREGIDO: Traemos las columnas reales de tu tabla 'catalogo_becas'
+                cur.execute("SELECT beca_id, nombre_beca, monto FROM catalogo_becas ORDER BY beca_id ASC")
+                becas_catalogo = cur.fetchall()
+                
+                # 2. CORREGIDO: Traemos el listado de becas asignadas emparejando con los datos del alumno
                 cur.execute("""
-                    SELECT b.beca_id, a.rut, a.nombre, a.apellido, b.nombre_beca, b.monto 
+                    SELECT b.id, a.rut, a.nombre, a.apellido, b.nombre_beca, b.monto 
                     FROM becas b
                     JOIN alumnos a ON b.alumno_id = a.alumno_id
-                    ORDER BY b.beca_id DESC
+                    ORDER BY b.id DESC
                 """)
                 becas_asignadas = cur.fetchall()
-                return render_template("becas.html", catalogo=catalogo_data, becas=becas_asignadas)
+
+        # Enviamos los datos ordenados tal cual los espera tu plantilla HTML (catalogo y becas)
+        return render_template("becas.html", catalogo=becas_catalogo, becas=becas_asignadas)
+        
     except Exception as e:
-        return f"Error en becas: {e}"
+        return f"<h2>Error en becas:</h2><p>{e}</p><br><a href='/inicio'>Volver al menú</a>"
     
 @app.route("/guardar_beca", methods=["POST"]) # <- Revisa si tu ruta se llama así o /agregar_beca
 def guardar_beca():
