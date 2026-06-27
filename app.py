@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, url_for
-import psycopg2
+import psycopg
 import os
 
 app = Flask(__name__)
@@ -8,7 +8,7 @@ app.secret_key = "clave_secreta"
 # Función de conexión original a Neon
 def conectar():
     DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://usuario:password@endpoint/dbname?sslmode=require")
-    return psycopg2.connect(DATABASE_URL)
+    return psycopg.connect(DATABASE_URL)
 
 @app.route("/")
 def login():
