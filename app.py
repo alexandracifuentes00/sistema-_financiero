@@ -299,16 +299,20 @@ def totem_consulta():
 
 @app.before_request
 def verificar_sesion():
-    # 1. Forzar una lectura limpia de la ruta del navegador
-    ruta_actual = str(request.path).lower()
+    # Si no hay un endpoint válido (por ejemplo, archivos estáticos internos de Flask), dejamos pasar
+    if not request.endpoint:
+        return
 
-    # 2. Si la URL contiene cualquiera de estas palabras, se ignora la seguridad de inmediato
-    if "totem" in ruta_actual or "login" in ruta_actual or ruta_actual.startswith("/static"):
-        return  # Acceso libre garantizado para el tótem y el login
+    # Definimos las funciones exactas que son públicas
+    # Asegúrate de que tus funciones en app.py se llamen exactamente así en el 'def'
+    rutas_publicas = ['login', 'totem', 'totem_consulta', 'static']
+    
+    # Si la función actual está en la lista de públicas, se ingresa sin restricciones
+    if request.endpoint in rutas_publicas:
+        return
 
-    # 3. Para cualquier otra pantalla (administración, alumnos, carreras, becas, etc.)
-    # Si la sesión no existe o está vacía, redirige de forma segura al login
-    if not session or 'usuario' not in session:
+    # Solo si intenta entrar a administración y no está logueado, se le redirige
+    if 'usuario' not in session:
         return redirect(url_for('login'))
 
 if __name__ == "__main__":
