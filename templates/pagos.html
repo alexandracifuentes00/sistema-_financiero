@@ -30,7 +30,7 @@
     <h2 style="margin-bottom: 15px;">Ingresar Nuevo Pago</h2>
 
     <div style="background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 40px;">
-        <form action="/guardar_pago" method="POST" style="display: flex; flex-direction: row; align-items: flex-end; gap: 15px; wrap: wrap;">
+        <form action="/guardar_pago" method="POST" style="display: flex; flex-direction: row; align-items: flex-end; gap: 15px; flex-wrap: wrap;">
             
             <div style="flex: 1; min-width: 180px;">
                 <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px;">RUT:</label>
@@ -84,7 +84,8 @@
                 <th style="padding: 12px; border-bottom: 2px solid #ddd;">Monto</th>
                 <th style="padding: 12px; border-bottom: 2px solid #ddd;">Fecha</th>
                 <th style="padding: 12px; border-bottom: 2px solid #ddd;">Método de Pago</th>
-                <th style="padding: 12px; border-bottom: 2px solid #ddd; text-align: center;">Acciones</th> </tr>
+                <th style="padding: 12px; border-bottom: 2px solid #ddd; text-align: center;">Acciones</th>
+            </tr>
         </thead>
         <tbody>
             {% for p in pagos %}
@@ -92,7 +93,7 @@
                 <td style="padding: 12px;">{{ loop.index }}</td> 
                 <td style="padding: 12px;">{{ p[1] }}</td>       
                 <td style="padding: 12px;">{{ p[2] }} {{ p[3] }}</td>      
-                <td style="padding: 12px; font-weight: bold; color: #2e7d32;">${{ "{:,.0f}".format(p[5]).replace(',', '.') }}</td> 
+                <td style="padding: 12px; font-weight: bold; color: #2e7d32;">${{ "{:,.0f}".format(p[5]|int).replace(',', '.') }}</td> 
                 <td style="padding: 12px;">{{ p[4] }}</td>       
                 <td style="padding: 12px;">{{ p[6] }}</td>
                 <td style="padding: 12px; text-align: center;">
