@@ -255,7 +255,7 @@ def logout():
 def totem_inicio():
     return render_template("totem_ingreso.html", error=None)
 
-@app.route("/totem/consulta", methods=["POST"])
+@app.route("/totem_consulta", methods=["POST"])
 def totem_consulta():
     rut_alumno = request.form.get("rut")
     
