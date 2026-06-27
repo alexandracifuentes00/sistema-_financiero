@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Pago - CFT Tarapacá</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 5px 40px; background-color: #0066cc; color: white;">
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <h1 style="margin: 0; font-size: 24px; font-weight: bold;">Modificar Registro de Pago</h1>
+    </div>
+    <div>
+        <a href="/pagos" style="display: inline-block; padding: 10px 20px; background-color: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px;">
+            ← Volver a Pagos
+        </a>
+    </div>
+</header>
+
+<div class="container" style="max-width: 600px; margin: 40px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+
+    <h2>Editar Detalles del Pago (ID: {{ pago[0] }})</h2>
+    <p style="color: #666; margin-bottom: 20px;"><strong>Alumno RUT:</strong> {{ pago[1] }}</p>
+
+    <form action="/actualizar_pago/{{ pago[0] }}" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+        
+        <div>
+            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Monto Modificado ($):</label>
+            <input type="number" name="monto" value="{{ pago[2] }}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+        </div>
+        
+        <div>
+            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Fecha de Pago:</label>
+            <input type="date" name="fecha" value="{{ pago[3] }}" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
+        </div>
+        
+        <div>
+            <label for="metodo_pago" style="display: block; font-weight: bold; margin-bottom: 5px;">Método de Pago:</label>
+            <select id="metodo_pago" name="metodo_pago" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background-color: white; box-sizing: border-box; height: 40px;">
+                <option value="Redcompra" {% if pago[4] == 'Redcompra' %}selected{% endif %}>💳 Redcompra (Débito/Crédito)</option>
+                <option value="Transferencia" {% if pago[4] == 'Transferencia' %}selected{% endif %}>🏦 Transferencia Bancaria</option>
+                <option value="Efectivo" {% if pago[4] == 'Efectivo' %}selected{% endif %}>💵 Efectivo</option>
+                <option value="Pago RUT" {% if pago[4] == 'Pago RUT' %}selected{% endif %}>🧡 CuentaRUT / BancoEstado</option>
+                <option value="Webpay" {% if pago[4] == 'Webpay' %}selected{% endif %}>🌐 Webpay / Pago en Línea</option>
+            </select>
+        </div>
+
+        <button type="submit" style="width: 100%; padding: 12px; background-color: #2e7d32; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px;">
+            💾 Guardar Cambios Realizados
+        </button>
+    </form>
+
+</div>
+
+</body>
+</html>

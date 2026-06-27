@@ -113,16 +113,17 @@ def pagos():
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
+                # Esta consulta amarra el pago con el alumno para mostrar los datos en tu tabla de administración
                 cur.execute("""
-                    SELECT p.pago_id, a.rut, a.nombre, p.monto, p.fecha, p.metodo_pago 
+                    SELECT p.pago_id, a.rut, a.nombre, a.apellido, p.fecha, p.monto, p.metodo_pago
                     FROM pagos p
                     JOIN alumnos a ON p.alumno_id = a.alumno_id
                     ORDER BY p.fecha DESC
                 """)
-                data = cur.fetchall()
-        return render_template("pagos.html", pagos=data)
+                pagos_data = cur.fetchall()
+                return render_template("pagos.html", pagos=pagos_data)
     except Exception as e:
-        return f"ERROR EN PAGOS: {e}"
+        return f"Error al cargar módulo de pagos: {e}"
 
 @app.route("/guardar_pago", methods=["POST"])
 def guardar_pago():
@@ -315,6 +316,53 @@ def verificar_sesion():
     # 4. Si intenta entrar al panel de administración y no tiene sesión activa, redirige al login
     if 'usuario' not in session:
         return redirect(url_for('login'))
+    
+    @app.route("/editar_pago/<int:id>")
+    def editar_pago(id):
+    # Validar sesión de administrador
+        if 'usuario' not in session:
+            return redirect(url_for('login'))
+        
+    try:
+        with conectar() as conn:
+            with conn.cursor() as cur:
+                # Buscamos el pago específico y los datos del alumno asignado
+                cur.execute("""
+                    SELECT p.pago_id, a.rut, p.monto, p.fecha, p.metodo_pago 
+                    FROM pagos p 
+                    JOIN alumnos a ON p.alumno_id = a.alumno_id 
+                    WHERE p.pago_id = %s
+                """, (id,))
+                pago = cur.fetchone()
+                
+                if pago:
+                    return render_template("editar_pago.html", pago=pago)
+                else:
+                    return "Error: Pago no encontrado."
+    except Exception as e:
+        return f"ERROR AL CARGAR EDICIÓN: {e}"
+
+@app.route("/actualizar_pago/<int:id>", methods=["POST"])
+def actualizar_pago(id):
+    if 'usuario' not in session:
+        return redirect(url_for('login'))
+
+    monto = request.form["monto"]
+    fecha = request.form["fecha"]
+    metodo_pago = request.form["metodo_pago"]
+
+    try:
+        with conectar() as conn:
+            with conn.cursor() as cur:
+                # Actualizamos los datos del pago
+                cur.execute("""
+                    UPDATE pagos 
+                    SET monto = %s, fecha = %s, metodo_pago = %s 
+                    WHERE pago_id = %s
+                """, (monto, fecha, metodo_pago, id))
+        return redirect("/pagos")
+    except Exception as e:
+        return f"ERROR AL ACTUALIZAR PAGO: {e}"
 
 if __name__ == "__main__":
     app.run(debug=True)
