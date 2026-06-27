@@ -25,14 +25,16 @@ def inicio():
 
 # ================= MÓDULO ESTUDIANTES =================
 
+# ================= MÓDULO ESTUDIANTES =================
+
 @app.route("/estudiantes")
 def estudiantes():
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # 1. Traer estudiantes
+                # 1. Traer estudiantes (Agregada la columna a.direccion en la posición p[5])
                 cur.execute("""
-                    SELECT a.alumno_id, a.nombre, a.apellido, a.rut, COALESCE(c.nombre_carrera, 'Sin Carrera') 
+                    SELECT a.alumno_id, a.nombre, a.apellido, a.rut, COALESCE(c.nombre_carrera, 'Sin Carrera'), a.direccion 
                     FROM alumnos a
                     LEFT JOIN carreras c ON a.carrera_id = c.carrera_id
                     ORDER BY a.alumno_id DESC
@@ -53,14 +55,15 @@ def guardar_estudiante():
     nombre = request.form["nombre"]
     apellido = request.form["apellido"]
     carrera_id = request.form["carrera_id"]
+    direccion = request.form["direccion"] # Captura la dirección del formulario
 
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    INSERT INTO alumnos (rut, nombre, apellido, carrera_id) 
-                    VALUES (%s, %s, %s, %s)
-                """, (rut, nombre, apellido, int(carrera_id)))
+                    INSERT INTO alumnos (rut, nombre, apellido, carrera_id, direccion) 
+                    VALUES (%s, %s, %s, %s, %s)
+                """, (rut, nombre, apellido, int(carrera_id), direccion))
         
         return redirect("/estudiantes")
 
@@ -73,8 +76,8 @@ def editar_estudiante(id):
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # 1. Buscar al alumno
-                cur.execute("SELECT alumno_id, nombre, apellido, rut, carrera_id FROM alumnos WHERE alumno_id = %s", (id,))
+                # 1. Buscar al alumno incluyendo dirección
+                cur.execute("SELECT alumno_id, nombre, apellido, rut, carrera_id, direccion FROM alumnos WHERE alumno_id = %s", (id,))
                 alumno = cur.fetchone()
                 
                 # 2. Buscar todas las carreras
@@ -93,15 +96,16 @@ def actualizar_estudiante(id):
     apellido = request.form["apellido"]
     rut = request.form["rut"].strip()
     carrera_id = request.form.get("carrera_id", 1)
+    direccion = request.form["direccion"] # Captura la dirección modificada
 
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
                     UPDATE alumnos 
-                    SET nombre = %s, apellido = %s, rut = %s, carrera_id = %s
+                    SET nombre = %s, apellido = %s, rut = %s, carrera_id = %s, direccion = %s
                     WHERE alumno_id = %s
-                """, (nombre, apellido, rut, int(carrera_id), id))
+                """, (nombre, apellido, rut, int(carrera_id), direccion, id))
         return redirect("/estudiantes")
     except Exception as e:
         return f"ERROR AL ACTUALIZAR ESTUDIANTE: {e}"
@@ -306,8 +310,8 @@ def totem_consulta():
             with conn.cursor() as cur:
                 cur.execute("""
                     SELECT a.alumno_id, a.nombre, a.apellido, 
-                           COALESCE(c.nombre_carrera, 'Carrera no asignada'), 
-                           COALESCE(c.costo_arancel, 0)
+                            COALESCE(c.nombre_carrera, 'Carrera no asignada'), 
+                            COALESCE(c.costo_arancel, 0)
                     FROM alumnos a
                     LEFT JOIN carreras c ON a.carrera_id = c.carrera_id
                     WHERE TRIM(LOWER(a.rut)) = %s 
