@@ -71,7 +71,7 @@
                 <td>${{ "{:,.0f}".format(b[5]).replace(',', '.') }}.-</td>
                 <td>
                     <button class="btn-edit" onclick="abrirModalEditar('{{ b[0] }}', '{{ b[4] }}', '{{ b[5] }}')">✏️ Editar</button>
-                    <a href="/eliminar_beca/{{ b[0] }}" class="btn-delete" onclick="return confirm('¿Seguro que deseas quitar esta beca?')">🗑️ Quitar</a>
+                    <a href="/eliminar_beca/{{ b[0] }}" class="btn-delete" onclick="return confirm('¿Seguro que deseas eliminar esta beca?')">🗑️ Eliminar</a>
                 </td>
             </tr>
             {% else %}
