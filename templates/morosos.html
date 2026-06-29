@@ -4,63 +4,86 @@
     <meta charset="UTF-8">
     <title>Morosos - CFT Tarapacá</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Clases CSS estáticas para los estados (Evita errores en el validador) */
+        .estado-critico { color: #D32F2F !important; font-weight: bold; }
+        .badge-critico { background-color: #D32F2F; }
+
+        .estado-atrasado { color: #FFA000 !important; font-weight: bold; }
+        .badge-atrasado { background-color: #FFA000; }
+
+        .estado-aldia { color: #4CAF50 !important; font-weight: bold; }
+        .badge-aldia { background-color: #4CAF50; }
+
+        .circle-status {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        .text-status {
+            vertical-align: middle;
+            font-size: 13px;
+        }
+    </style>
 </head>
 <body>
 
 <header style="display: flex; align-items: center; justify-content: space-between; padding: 5px 40px; background-color: #0066cc; color: white;">
-    
     <div style="display: flex; align-items: center; gap: 20px;">
-        <div class="logo">
-            <img src="{{ url_for('static', filename='logo.png') }}" style="display: block; height: auto;">
-        </div>
+        <div class="logo"><img src="{{ url_for('static', filename='logo.png') }}" style="display: block; height: auto;"></div>
         <div>
-            <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Estudiantes Morosos</h1>
+            <h1 style="margin: 0; font-size: 28px; font-weight: bold;">Control de Morosidad</h1>
             <h3 style="margin: 5px 0 0 0; font-size: 16px; opacity: 0.9;">CFT Tarapacá</h3>
         </div>
     </div>
-
     <div>
-        <a href="/inicio" style="display: inline-block; padding: 10px 20px; background-color: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid rgba(255, 255, 255, 0.4); transition: background 0.3s;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.3)'" onmouseout="this.style.backgroundColor='rgba(255,255,255,0.2)'">
+        <a href="/inicio" style="display: inline-block; padding: 10px 20px; background-color: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; border: 1px solid rgba(255, 255, 255, 0.4);">
             ← Volver al Menú Principal
         </a>
     </div>
 </header>
 
-<div class="container" style="max-width: 1200px; margin: 20px auto; padding: 0 20px;">
-
-    <h2>Listado de Saldos Pendientes</h2>
+<div class="container" style="max-width: 1100px; margin: 30px auto; padding: 0 20px;">
+    <h2 style="color: #333; margin-bottom: 20px;">Listado de Saldos Pendientes</h2>
 
     <table>
         <thead>
             <tr>
+                <th>ID</th>
                 <th>Estudiante</th>
                 <th>Deuda Pendiente</th>
-                <th>Cuotas Pendientes</th> 
-                <th>Estado</th>
+                <th>Cuotas Pendientes</th>
+                <th style="text-align: center;">Estado</th>
             </tr>
         </thead>
         <tbody>
             {% for m in morosos %}
             <tr>
-                <td>{{ m[0] }}</td> 
-                <td>${{ "{:,.0f}".format(m[1]).replace(',', '.') }}.-</td> 
-                
-                <td style="font-weight: bold; color: #555;">{{ m[3] }} cuota(s)</td>
-                
-                <td>
-                    <span style="background-color: #f8d7da; color: #721c24; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold;">
-                        {{ m[2] }}
-                    </span>
+                <td>{{ loop.index }}</td>
+                <td style="font-weight: 500;">{{ m.estudiante }}</td>
+                <td style="color: #D32F2F; font-weight: bold;">${{ "{:,.0f}".format(m.deuda).replace(',', '.') }}.-</td>
+                <td>{{ m.cuotas }} cuota(s)</td>
+                <td style="text-align: center;">
+                    {% if m.estado == "Crítico" %}
+                        <span class="circle-status badge-critico"></span>
+                        <strong class="text-status estado-critico">{{ m.estado }}</strong>
+                    {% elif m.estado == "Atrasado" %}
+                        <span class="circle-status badge-atrasado"></span>
+                        <strong class="text-status estado-atrasado">{{ m.estado }}</strong>
+                    {% else %}
+                        <span class="circle-status badge-aldia"></span>
+                        <strong class="text-status estado-aldia">{{ m.estado }}</strong>
+                    {% endif %}
                 </td>
             </tr>
             {% else %}
-            <tr>
-                <td colspan="4" style="text-align: center;">¡Excelente! No hay estudiantes morosos registrados.</td>
-            </tr>
+            <tr><td colspan="5" style="text-align: center; color: #666; padding: 20px;">No se registran estudiantes morosos en el sistema. 🙌</td></tr>
             {% endfor %}
         </tbody>
     </table>
-
 </div>
 
 </body>
