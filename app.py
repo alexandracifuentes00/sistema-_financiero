@@ -281,20 +281,46 @@ def eliminar_beca(id_asignacion):
         return f"Error al eliminar la beca: {e}"
 
 # ================= REPORTES Y TÓTEM ORIGINALES =================
-
 @app.route("/morosos")
 def morosos():
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    SELECT a.nombre, 
-                            (c.costo_arancel - COALESCE((SELECT SUM(monto) FROM pagos WHERE alumno_id = a.alumno_id), 0)) AS deuda
+                    SELECT a.nombre, a.apellido, c.costo_arancel,
+                           COALESCE((SELECT SUM(monto) FROM pagos WHERE alumno_id = a.alumno_id), 0) AS pagado
                     FROM alumnos a
                     JOIN carreras c ON a.carrera_id = c.carrera_id
                 """)
-                data = cur.fetchall()
-        return render_template("morosos.html", morosos=data)
+                usuarios = cur.fetchall()
+                
+                lista_morosos = []
+                for row in usuarios:
+                    nombre_completo = f"{row[0]} {row[1]}".upper()
+                    arancel = row[2]
+                    pagado = row[3]
+                    deuda = arancel - pagado
+                    
+                    valor_cuota = arancel / 10 if arancel > 0 else 1
+                    
+                    if deuda > 0:
+                        import math
+                        cuotas_pendientes = math.ceil(deuda / valor_cuota)
+                        
+                        if cuotas_pendientes > 2:
+                            estado_texto = "Crítico"
+                        else:
+                            estado_texto = "Atrasado"
+                            
+                        # Aquí definimos exactamente las claves que usará el HTML
+                        lista_morosos.append({
+                            "estudiante": nombre_completo,
+                            "deuda": float(deuda),
+                            "cuotas": cuotas_pendientes,
+                            "estado": estado_texto
+                        })
+                        
+        return render_template("morosos.html", morosos=lista_morosos)
     except Exception as e:
         return f"ERROR: {e}"
 # ================= TÓTEM DE ALUMNOS =================

@@ -5,15 +5,11 @@
     <title>Morosos - CFT Tarapacá</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        /* Clases CSS estáticas para los estados (Evita errores en el validador) */
         .estado-critico { color: #D32F2F !important; font-weight: bold; }
         .badge-critico { background-color: #D32F2F; }
 
         .estado-atrasado { color: #FFA000 !important; font-weight: bold; }
         .badge-atrasado { background-color: #FFA000; }
-
-        .estado-aldia { color: #4CAF50 !important; font-weight: bold; }
-        .badge-aldia { background-color: #4CAF50; }
 
         .circle-status {
             display: inline-block;
@@ -64,18 +60,21 @@
             <tr>
                 <td>{{ loop.index }}</td>
                 <td style="font-weight: 500;">{{ m.estudiante }}</td>
-                <td style="color: #D32F2F; font-weight: bold;">${{ "{:,.0f}".format(m.deuda).replace(',', '.') }}.-</td>
+                <td style="color: #D32F2F; font-weight: bold;">
+                    {% if m.deuda is defined and m.deuda is not none %}
+                        ${{ "{:,.0f}".format(m.deuda).replace(',', '.') }}.-
+                    {% else %}
+                        $0.-
+                    {% endif %}
+                </td>
                 <td>{{ m.cuotas }} cuota(s)</td>
                 <td style="text-align: center;">
                     {% if m.estado == "Crítico" %}
                         <span class="circle-status badge-critico"></span>
                         <strong class="text-status estado-critico">{{ m.estado }}</strong>
-                    {% elif m.estado == "Atrasado" %}
+                    {% else %}
                         <span class="circle-status badge-atrasado"></span>
                         <strong class="text-status estado-atrasado">{{ m.estado }}</strong>
-                    {% else %}
-                        <span class="circle-status badge-aldia"></span>
-                        <strong class="text-status estado-aldia">{{ m.estado }}</strong>
                     {% endif %}
                 </td>
             </tr>
