@@ -7,13 +7,25 @@
     <style>
         /* Estilos para la ventana emergente de edición (Modal) */
         .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0; 
-            width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);
-            justify-content: center; align-items: center;
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center; 
+            align-items: center;
         }
         .modal-content {
-            background-color: white; padding: 30px; border-radius: 12px; 
-            width: 100%; max-width: 450px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            background-color: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            width: 100%; 
+            max-width: 450px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            box-sizing: border-box;
         }
         .btn-edit { background-color: #FFA000; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px; }
         .btn-delete { background-color: #D32F2F; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; }
@@ -83,19 +95,32 @@
 
 <div id="modalEditar" class="modal">
     <div class="modal-content">
-        <h3 style="margin-top:0; color:#0066cc;">Modificar Beca Asignada</h3>
-        <form action="/editar_beca" method="POST">
+        <h3 style="margin-top: 0; margin-bottom: 20px; color: #0066cc; font-size: 22px; font-weight: bold; text-align: center;">Modificar Beca Asignada</h3>
+        
+        <form action="/editar_beca" method="POST" style="display: block; width: 100%;">
             <input type="hidden" id="edit_id" name="id">
             
-            <label style="display:block; margin-bottom:5px; font-weight:bold;">Nombre del Beneficio:</label>
-            <input type="text" id="edit_nombre" name="nombre_beca" required style="width:100%; padding:8px; margin-bottom:15px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;">
+            <div style="margin-bottom: 15px; width: 100%;">
+                <label style="display: block; margin-bottom: 6px; font-weight: bold; color: #333; text-align: left;">Nombre del Beneficio:</label>
+                <input type="text" id="edit_nombre" name="nombre_beca" required 
+                       style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; display: block;">
+            </div>
             
-            <label style="display:block; margin-bottom:5px; font-weight:bold;">Monto de Cobertura ($):</label>
-            <input type="number" id="edit_monto" name="monto" required style="width:100%; padding:8px; margin-bottom:20px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box;">
+            <div style="margin-bottom: 25px; width: 100%;">
+                <label style="display: block; margin-bottom: 6px; font-weight: bold; color: #333; text-align: left;">Monto de Cobertura ($):</label>
+                <input type="number" id="edit_monto" name="monto" required 
+                       style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; display: block;">
+            </div>
             
-            <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button type="button" onclick="cerrarModal()" style="padding:8px 15px; border:1px solid #ccc; background:#fff; border-radius:4px; cursor:pointer;">Cancelar</button>
-                <button type="submit" style="padding:8px 15px; background:#4CAF50; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">Guardar Cambios</button>
+            <div style="display: flex; justify-content: flex-end; gap: 12px; width: 100%;">
+                <button type="button" onclick="cerrarModal()" 
+                        style="padding: 10px 18px; border: 1px solid #ccc; background: #fff; border-radius: 6px; cursor: pointer; font-weight: bold; color: #666; font-size: 14px;">
+                    Cancelar
+                </button>
+                <button type="submit" 
+                        style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; box-shadow: 0 2px 5px rgba(76,175,80,0.3);">
+                    Guardar Cambios
+                </button>
             </div>
         </form>
     </div>
