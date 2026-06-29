@@ -194,9 +194,9 @@ def modulo_becas():
                 cur.execute("SELECT id, nombre_beca, monto FROM catalogo_becas ORDER BY id ASC")
                 becas_catalogo = cur.fetchall()
                 
-                # 2. Listado de becas asignadas (Corregido: quitamos b.id ya que usas loop.index en el HTML)
+                # 2. Listado de becas asignadas (CORREGIDO: Cambiamos el '1' por 'b.id' para enlazar Editar y Eliminar)
                 cur.execute("""
-                    SELECT 1, a.rut, a.nombre, a.apellido, b.nombre_beca, b.monto 
+                    SELECT b.id, a.rut, a.nombre, a.apellido, b.nombre_beca, b.monto 
                     FROM becas b
                     JOIN alumnos a ON b.alumno_id = a.alumno_id
                     ORDER BY a.apellido ASC
@@ -216,6 +216,7 @@ def guardar_beca_modulo():
     
     if not rut_alumno or not id_catalogo:
         return "<h2>Error:</h2><p>Faltan datos obligatorios en el formulario.</p><br><a href='/becas'>Volver</a>"
+        
     # Limpiamos los puntos del RUT por si el usuario lo escribió con ellos
     rut_limpio = rut_alumno.replace(".", "")
     try:
@@ -227,6 +228,7 @@ def guardar_beca_modulo():
                 if not alumno:
                     return f"<h2>Error:</h2><p>El RUT {rut_alumno} no corresponde a ningún alumno registrado.</p><br><a href='/becas'>Volver</a>"                
                 alumno_id = alumno[0]                
+                
                 # 3. Obtenemos el nombre de la beca y el monto desde el catálogo oficial usando el id_catalogo
                 cur.execute("SELECT nombre_beca, monto FROM catalogo_becas WHERE id = %s", (id_catalogo,))
                 item_catalogo = cur.fetchone()                
@@ -234,6 +236,7 @@ def guardar_beca_modulo():
                     return "<h2>Error:</h2><p>La beca seleccionada no existe en el catálogo.</p><br><a href='/becas'>Volver</a>"                
                 nombre_beca = item_catalogo[0]
                 monto = item_catalogo[1]                
+                
                 # 4. Insertamos finalmente en la tabla 'becas' con todos los valores obligatorios llenos
                 cur.execute("""
                     INSERT INTO becas (alumno_id, nombre_beca, monto) 
@@ -244,6 +247,36 @@ def guardar_beca_modulo():
         return redirect("/becas")        
     except Exception as e:
         return f"<h2>Error al agregar la beca:</h2><p>{e}</p><br><a href='/becas'>Volver a intentar</a>"
+    
+@app.route("/editar_beca", methods=["POST"])
+def editar_beca():
+    id_asignacion = request.form.get("id")
+    nombre_beca = request.form.get("nombre_beca")
+    monto = request.form.get("monto")
+    
+    try:
+        with conectar() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE becas 
+                    SET nombre_beca = %s, monto = %s 
+                    WHERE id = %s
+                """, (nombre_beca, monto, id_asignacion))
+                conn.commit()
+        return redirect("/becas")
+    except Exception as e:
+        return f"Error al editar la beca: {e}"
+
+@app.route("/eliminar_beca/<int:id_asignacion>", methods=["GET"])
+def eliminar_beca(id_asignacion):
+    try:
+        with conectar() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM becas WHERE id = %s", (id_asignacion,))
+                conn.commit()
+        return redirect("/becas")
+    except Exception as e:
+        return f"Error al eliminar la beca: {e}"
 
 # ================= REPORTES Y TÓTEM ORIGINALES =================
 
