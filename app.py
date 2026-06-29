@@ -194,9 +194,9 @@ def modulo_becas():
                 cur.execute("SELECT id, nombre_beca, monto FROM catalogo_becas ORDER BY id ASC")
                 becas_catalogo = cur.fetchall()
                 
-                # 2. Listado de becas asignadas (CORREGIDO: Cambiamos el '1' por 'b.id' para enlazar Editar y Eliminar)
+                # 2. Listado de becas asignadas (CORREGIDO: Usamos b.alumno_id como identificador único)
                 cur.execute("""
-                    SELECT b.id, a.rut, a.nombre, a.apellido, b.nombre_beca, b.monto 
+                    SELECT b.alumno_id, a.rut, a.nombre, a.apellido, b.nombre_beca, b.monto 
                     FROM becas b
                     JOIN alumnos a ON b.alumno_id = a.alumno_id
                     ORDER BY a.apellido ASC
@@ -250,17 +250,18 @@ def guardar_beca_modulo():
     
 @app.route("/editar_beca", methods=["POST"])
 def editar_beca():
-    id_asignacion = request.form.get("id")
+    id_asignacion = request.form.get("id") # Este recibirá el alumno_id
     nombre_beca = request.form.get("nombre_beca")
     monto = request.form.get("monto")
     
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
+                # CORREGIDO: Filtramos por alumno_id
                 cur.execute("""
                     UPDATE becas 
                     SET nombre_beca = %s, monto = %s 
-                    WHERE id = %s
+                    WHERE alumno_id = %s
                 """, (nombre_beca, monto, id_asignacion))
                 conn.commit()
         return redirect("/becas")
@@ -272,7 +273,8 @@ def eliminar_beca(id_asignacion):
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                cur.execute("DELETE FROM becas WHERE id = %s", (id_asignacion,))
+                # CORREGIDO: Filtramos por alumno_id
+                cur.execute("DELETE FROM becas WHERE alumno_id = %s", (id_asignacion,))
                 conn.commit()
         return redirect("/becas")
     except Exception as e:
