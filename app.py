@@ -208,24 +208,42 @@ def modulo_becas():
     except Exception as e:
         return f"<h2>Error en becas:</h2><p>{e}</p><br><a href='/inicio'>Volver al menú</a>"
     
-@app.route("/guardar_beca", methods=["POST"]) # <- Revisa si tu ruta se llama así o /agregar_beca
-def guardar_beca():
-    alumno_id = request.form.get("alumno_id")
-    nombre_beca = request.form.get("nombre_beca") # Nombre del input en tu HTML
-    monto = request.form.get("monto")             # Nombre del input en tu HTML
-
+@app.route("/guardar_beca", methods=["POST"])
+def guardar_beca_modulo():
+    # 1. Recogemos los nombres de campo exactos que envía tu HTML (rut e id_catalogo)
+    rut_alumno = request.form.get("rut", "").strip()
+    id_catalogo = request.form.get("id_catalogo")
+    
+    if not rut_alumno or not id_catalogo:
+        return "<h2>Error:</h2><p>Faltan datos obligatorios en el formulario.</p><br><a href='/becas'>Volver</a>"
+    # Limpiamos los puntos del RUT por si el usuario lo escribió con ellos
+    rut_limpio = rut_alumno.replace(".", "")
     try:
         with conectar() as conn:
             with conn.cursor() as cur:
-                # CORREGIDO: Usamos las columnas reales 'nombre_beca' y 'monto'
+                # 2. Buscamos el alumno_id correspondiente a ese RUT
+                cur.execute("SELECT alumno_id FROM alumnos WHERE rut = %s", (rut_limpio,))
+                alumno = cur.fetchone()
+                if not alumno:
+                    return f"<h2>Error:</h2><p>El RUT {rut_alumno} no corresponde a ningún alumno registrado.</p><br><a href='/becas'>Volver</a>"                
+                alumno_id = alumno[0]                
+                # 3. Obtenemos el nombre de la beca y el monto desde el catálogo oficial usando el id_catalogo
+                cur.execute("SELECT nombre_beca, monto FROM catalogo_becas WHERE id = %s", (id_catalogo,))
+                item_catalogo = cur.fetchone()                
+                if not item_catalogo:
+                    return "<h2>Error:</h2><p>La beca seleccionada no existe en el catálogo.</p><br><a href='/becas'>Volver</a>"                
+                nombre_beca = item_catalogo[0]
+                monto = item_catalogo[1]                
+                # 4. Insertamos finalmente en la tabla 'becas' con todos los valores obligatorios llenos
                 cur.execute("""
                     INSERT INTO becas (alumno_id, nombre_beca, monto) 
                     VALUES (%s, %s, %s)
-                """, (alumno_id, nombre_beca, monto))
+                """, (alumno_id, nombre_beca, monto))                
                 conn.commit()
-        return redirect("/becas") # O la ruta a la que rediriges normalmente
+                
+        return redirect("/becas")        
     except Exception as e:
-        return f"Error al agregar la beca: {e}"
+        return f"<h2>Error al agregar la beca:</h2><p>{e}</p><br><a href='/becas'>Volver a intentar</a>"
 
 # ================= REPORTES Y TÓTEM ORIGINALES =================
 
